@@ -14,6 +14,7 @@ bottlerocket-release = { path = "../bottlerocket-release", version = "0.1" }
 libc = "0.2"
 model-derive = { path = "model-derive", version = "0.1" }
 modeled-types = { path = "modeled-types", version = "0.1" }
+regex = "1.10"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 

@@ -215,7 +215,76 @@ use modeled_types::KubernetesEvictionKey;
 use modeled_types::KubernetesMemoryManagerPolicy;
 use modeled_types::KubernetesMemoryReservation;
 use modeled_types::NonNegativeInteger;
-pub use variant::*;
+pub use variant::Model;
+
+#[path="aws-dev/mod.rs"]
+mod aws_dev;
+#[path="aws-ecs-1/mod.rs"]
+mod aws_ecs_1;
+#[path="aws-ecs-1-nvidia/mod.rs"]
+mod aws_ecs_1_nvidia;
+#[path="aws-ecs-2/mod.rs"]
+mod aws_ecs_2;
+#[path="aws-ecs-2-nvidia/mod.rs"]
+mod aws_ecs_2_nvidia;
+#[path="aws-k8s-1.23/mod.rs"]
+mod aws_k8s_123;
+#[path="aws-k8s-1.23-nvidia/mod.rs"]
+mod aws_k8s_123_nvidia;
+#[path="aws-k8s-1.24/mod.rs"]
+mod aws_k8s_124;
+#[path="aws-k8s-1.24-nvidia/mod.rs"]
+mod aws_k8s_124_nvidia;
+#[path="aws-k8s-1.25/mod.rs"]
+mod aws_k8s_125;
+#[path="aws-k8s-1.25-nvidia/mod.rs"]
+mod aws_k8s_125_nvidia;
+#[path="aws-k8s-1.26/mod.rs"]
+mod aws_k8s_126;
+#[path="aws-k8s-1.26-nvidia/mod.rs"]
+mod aws_k8s_126_nvidia;
+#[path="aws-k8s-1.27/mod.rs"]
+mod aws_k8s_127;
+#[path="aws-k8s-1.27-nvidia/mod.rs"]
+mod aws_k8s_127_nvidia;
+#[path="aws-k8s-1.28/mod.rs"]
+mod aws_k8s_128;
+#[path="aws-k8s-1.28-nvidia/mod.rs"]
+mod aws_k8s_128_nvidia;
+#[path="aws-k8s-1.29/mod.rs"]
+mod aws_k8s_129;
+#[path="aws-k8s-1.29-nvidia/mod.rs"]
+mod aws_k8s_129_nvidia;
+#[path="aws-k8s-1.30/mod.rs"]
+mod aws_k8s_130;
+#[path="aws-k8s-1.30-nvidia/mod.rs"]
+mod aws_k8s_130_nvidia;
+#[path="metal-dev/mod.rs"]
+mod metal_dev;
+#[path="metal-k8s-1.25/mod.rs"]
+mod metal_k8s_125;
+#[path="metal-k8s-1.26/mod.rs"]
+mod metal_k8s_126;
+#[path="metal-k8s-1.27/mod.rs"]
+mod metal_k8s_127;
+#[path="metal-k8s-1.28/mod.rs"]
+mod metal_k8s_128;
+#[path="metal-k8s-1.29/mod.rs"]
+mod metal_k8s_129;
+#[path="vmware-dev/mod.rs"]
+mod vmware_dev;
+#[path="vmware-k8s-1.25/mod.rs"]
+mod vmware_k8s_125;
+#[path="vmware-k8s-1.26/mod.rs"]
+mod vmware_k8s_126;
+#[path="vmware-k8s-1.27/mod.rs"]
+mod vmware_k8s_127;
+#[path="vmware-k8s-1.28/mod.rs"]
+mod vmware_k8s_128;
+#[path="vmware-k8s-1.29/mod.rs"]
+mod vmware_k8s_129;
+#[path="vmware-k8s-1.30/mod.rs"]
+mod vmware_k8s_130;
 
 // Types used to communicate between client and server for 'apiclient exec'.
 pub mod exec;
@@ -225,7 +294,7 @@ pub mod exec;
 // are in subdirectories and linked into place by build.rs at variant/current.)
 
 use model_derive::model;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 use std::net::IpAddr;
 
@@ -241,6 +310,134 @@ use modeled_types::{
     OciDefaultsResourceLimitType, PemCertificateString, SingleLineString, SysctlKey,
     TopologyManagerPolicy, TopologyManagerScope, Url, ValidBase64, ValidLinuxHostname,
 };
+
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
+pub enum Settings {
+    AwsDev(aws_dev::Settings),
+    AwsEcs1(aws_ecs_1::Settings),
+    AwsEcs1Nvidia(aws_ecs_1_nvidia::Settings),
+    AwsEcs2(aws_ecs_2::Settings),
+    AwsEcs2Nvidia(aws_ecs_2_nvidia::Settings),
+    AwsK8s123(aws_k8s_123::Settings),
+    AwsK8s123Nvidia(aws_k8s_123_nvidia::Settings),
+    AwsK8s124(aws_k8s_124::Settings),
+    AwsK8s124Nvidia(aws_k8s_124_nvidia::Settings),
+    AwsK8s125(aws_k8s_125::Settings),
+    AwsK8s125Nvidia(aws_k8s_125_nvidia::Settings),
+    AwsK8s126(aws_k8s_126::Settings),
+    AwsK8s126Nvidia(aws_k8s_126_nvidia::Settings),
+    AwsK8s127(aws_k8s_127::Settings),
+    AwsK8s127Nvidia(aws_k8s_127_nvidia::Settings),
+    AwsK8s128(aws_k8s_128::Settings),
+    AwsK8s128Nvidia(aws_k8s_128_nvidia::Settings),
+    AwsK8s129(aws_k8s_129::Settings),
+    AwsK8s129Nvidia(aws_k8s_129_nvidia::Settings),
+    AwsK8s130(aws_k8s_130::Settings),
+    AwsK8s130Nvidia(aws_k8s_130_nvidia::Settings),
+    MetalDev(metal_dev::Settings),
+    MetalK8s125(metal_k8s_125::Settings),
+    MetalK8s126(metal_k8s_126::Settings),
+    MetalK8s127(metal_k8s_127::Settings),
+    MetalK8s128(metal_k8s_128::Settings),
+    MetalK8s129(metal_k8s_129::Settings),
+    VmwareDev(vmware_dev::Settings),
+    VmwareK8s125(vmware_k8s_125::Settings),
+    VmwareK8s126(vmware_k8s_126::Settings),
+    VmwareK8s127(vmware_k8s_127::Settings),
+    VmwareK8s128(vmware_k8s_128::Settings),
+    VmwareK8s129(vmware_k8s_129::Settings),
+    VmwareK8s130(vmware_k8s_130::Settings),
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        let variant = String::from("aws-dev");
+        match variant.as_str() {
+            "aws-dev" => Settings::AwsDev(aws_dev::Settings::default()),
+            "aws-ecs-1" => Settings::AwsEcs1(aws_ecs_1::Settings::default()),
+            "aws-ecs-1-nvidia" => Settings::AwsEcs1Nvidia(aws_ecs_1_nvidia::Settings::default()),
+            "aws-ecs-2" => Settings::AwsEcs2(aws_ecs_2::Settings::default()),
+            "aws-ecs-2-nvidia" => Settings::AwsEcs2Nvidia(aws_ecs_2_nvidia::Settings::default()),
+            "aws-k8s-1.23" => Settings::AwsK8s123(aws_k8s_123::Settings::default()),
+            "aws-k8s-1.23-nvidia" => Settings::AwsK8s123Nvidia(aws_k8s_123_nvidia::Settings::default()),
+            "aws-k8s-1.24" => Settings::AwsK8s124(aws_k8s_124::Settings::default()),
+            "aws-k8s-1.24-nvidia" => Settings::AwsK8s124Nvidia(aws_k8s_124_nvidia::Settings::default()),
+            "aws-k8s-1.25" => Settings::AwsK8s125(aws_k8s_125::Settings::default()),
+            "aws-k8s-1.25-nvidia" => Settings::AwsK8s125Nvidia(aws_k8s_125_nvidia::Settings::default()),
+            "aws-k8s-1.26" => Settings::AwsK8s126(aws_k8s_126::Settings::default()),
+            "aws-k8s-1.26-nvidia" => Settings::AwsK8s126Nvidia(aws_k8s_126_nvidia::Settings::default()),
+            "aws-k8s-1.27" => Settings::AwsK8s127(aws_k8s_127::Settings::default()),
+            "aws-k8s-1.27-nvidia" => Settings::AwsK8s127Nvidia(aws_k8s_127_nvidia::Settings::default()),
+            "aws-k8s-1.28" => Settings::AwsK8s128(aws_k8s_128::Settings::default()),
+            "aws-k8s-1.28-nvidia" => Settings::AwsK8s128Nvidia(aws_k8s_128_nvidia::Settings::default()),
+            "aws-k8s-1.29" => Settings::AwsK8s129(aws_k8s_129::Settings::default()),
+            "aws-k8s-1.29-nvidia" => Settings::AwsK8s129Nvidia(aws_k8s_129_nvidia::Settings::default()),
+            "aws-k8s-1.30" => Settings::AwsK8s130(aws_k8s_130::Settings::default()),
+            "aws-k8s-1.30-nvidia" => Settings::AwsK8s130Nvidia(aws_k8s_130_nvidia::Settings::default()),
+            "metal-dev" => Settings::MetalDev(metal_dev::Settings::default()),
+            "metal-k8s-1.25" => Settings::MetalK8s125(metal_k8s_125::Settings::default()),
+            "metal-k8s-1.26" => Settings::MetalK8s126(metal_k8s_126::Settings::default()),
+            "metal-k8s-1.27" => Settings::MetalK8s127(metal_k8s_127::Settings::default()),
+            "metal-k8s-1.28" => Settings::MetalK8s128(metal_k8s_128::Settings::default()),
+            "metal-k8s-1.29" => Settings::MetalK8s129(metal_k8s_129::Settings::default()),
+            "vmware-dev" => Settings::VmwareDev(vmware_dev::Settings::default()),
+            "vmware-k8s-1.25" => Settings::VmwareK8s125(vmware_k8s_125::Settings::default()),
+            "vmware-k8s-1.26" => Settings::VmwareK8s126(vmware_k8s_126::Settings::default()),
+            "vmware-k8s-1.27" => Settings::VmwareK8s127(vmware_k8s_127::Settings::default()),
+            "vmware-k8s-1.28" => Settings::VmwareK8s128(vmware_k8s_128::Settings::default()),
+            "vmware-k8s-1.29" => Settings::VmwareK8s129(vmware_k8s_129::Settings::default()),
+            "vmware-k8s-1.30" => Settings::VmwareK8s130(vmware_k8s_130::Settings::default()),
+            _ => unimplemented!(),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Settings {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+         where D: Deserializer<'de>
+    {
+        let variant = String::from("aws-dev");
+        match variant.as_str() {
+            "aws-dev" => Ok(Settings::AwsDev(aws_dev::Settings::deserialize(deserializer)?)),
+            "aws-ecs-1" => Ok(Settings::AwsEcs1(aws_ecs_1::Settings::deserialize(deserializer)?)),
+            "aws-ecs-1-nvidia" => Ok(Settings::AwsEcs1Nvidia(aws_ecs_1_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-ecs-2" => Ok(Settings::AwsEcs2(aws_ecs_2::Settings::deserialize(deserializer)?)),
+            "aws-ecs-2-nvidia" => Ok(Settings::AwsEcs2Nvidia(aws_ecs_2_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.23" => Ok(Settings::AwsK8s123(aws_k8s_123::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.23-nvidia" => Ok(Settings::AwsK8s123Nvidia(aws_k8s_123_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.24" => Ok(Settings::AwsK8s124(aws_k8s_124::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.24-nvidia" => Ok(Settings::AwsK8s124Nvidia(aws_k8s_124_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.25" => Ok(Settings::AwsK8s125(aws_k8s_125::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.25-nvidia" => Ok(Settings::AwsK8s125Nvidia(aws_k8s_125_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.26" => Ok(Settings::AwsK8s126(aws_k8s_126::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.26-nvidia" => Ok(Settings::AwsK8s126Nvidia(aws_k8s_126_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.27" => Ok(Settings::AwsK8s127(aws_k8s_127::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.27-nvidia" => Ok(Settings::AwsK8s127Nvidia(aws_k8s_127_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.28" => Ok(Settings::AwsK8s128(aws_k8s_128::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.28-nvidia" => Ok(Settings::AwsK8s128Nvidia(aws_k8s_128_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.29" => Ok(Settings::AwsK8s129(aws_k8s_129::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.29-nvidia" => Ok(Settings::AwsK8s129Nvidia(aws_k8s_129_nvidia::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.30" => Ok(Settings::AwsK8s130(aws_k8s_130::Settings::deserialize(deserializer)?)),
+            "aws-k8s-1.30-nvidia" => Ok(Settings::AwsK8s130Nvidia(aws_k8s_130_nvidia::Settings::deserialize(deserializer)?)),
+            "metal-dev" => Ok(Settings::MetalDev(metal_dev::Settings::deserialize(deserializer)?)),
+            "metal-k8s-1.25" => Ok(Settings::MetalK8s125(metal_k8s_125::Settings::deserialize(deserializer)?)),
+            "metal-k8s-1.26" => Ok(Settings::MetalK8s126(metal_k8s_126::Settings::deserialize(deserializer)?)),
+            "metal-k8s-1.27" => Ok(Settings::MetalK8s127(metal_k8s_127::Settings::deserialize(deserializer)?)),
+            "metal-k8s-1.28" => Ok(Settings::MetalK8s128(metal_k8s_128::Settings::deserialize(deserializer)?)),
+            "metal-k8s-1.29" => Ok(Settings::MetalK8s129(metal_k8s_129::Settings::deserialize(deserializer)?)),
+            "vmware-dev" => Ok(Settings::VmwareDev(vmware_dev::Settings::deserialize(deserializer)?)),
+            "vmware-k8s-1.25" => Ok(Settings::VmwareK8s125(vmware_k8s_125::Settings::deserialize(deserializer)?)),
+            "vmware-k8s-1.26" => Ok(Settings::VmwareK8s126(vmware_k8s_126::Settings::deserialize(deserializer)?)),
+            "vmware-k8s-1.27" => Ok(Settings::VmwareK8s127(vmware_k8s_127::Settings::deserialize(deserializer)?)),
+            "vmware-k8s-1.28" => Ok(Settings::VmwareK8s128(vmware_k8s_128::Settings::deserialize(deserializer)?)),
+            "vmware-k8s-1.29" => Ok(Settings::VmwareK8s129(vmware_k8s_129::Settings::deserialize(deserializer)?)),
+            "vmware-k8s-1.30" => Ok(Settings::VmwareK8s130(vmware_k8s_130::Settings::deserialize(deserializer)?)),
+            _ => unimplemented!(),
+        }
+    }
+}
 
 // Kubernetes static pod manifest settings
 #[model]

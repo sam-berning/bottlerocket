@@ -2775,6 +2775,7 @@ dependencies = [
  "model-derive",
  "modeled-types",
  "rand",
+ "regex",
  "serde",
  "serde_json",
  "settings-extension-aws",
