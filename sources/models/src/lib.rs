@@ -353,7 +353,7 @@ pub enum Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        let variant = String::from("aws-dev");
+        let variant = variant::get_variant_from_elf_note().unwrap();
         match variant.as_str() {
             "aws-dev" => Settings::AwsDev(aws_dev::Settings::default()),
             "aws-ecs-1" => Settings::AwsEcs1(aws_ecs_1::Settings::default()),
@@ -398,7 +398,7 @@ impl<'de> Deserialize<'de> for Settings {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
          where D: Deserializer<'de>
     {
-        let variant = String::from("aws-dev");
+        let variant = variant::get_variant_from_elf_note().unwrap();
         match variant.as_str() {
             "aws-dev" => Ok(Settings::AwsDev(aws_dev::Settings::deserialize(deserializer)?)),
             "aws-ecs-1" => Ok(Settings::AwsEcs1(aws_ecs_1::Settings::deserialize(deserializer)?)),
