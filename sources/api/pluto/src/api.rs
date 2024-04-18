@@ -44,13 +44,13 @@ mod inner {
     pub(crate) async fn get_aws_k8s_info() -> Result<AwsK8sInfo> {
         let settings = get_settings().await?;
         Ok(AwsK8sInfo {
-            region: settings.aws.and_then(|a| a.region).map(|s| s.into()),
+            region: settings.aws().and_then(|a| a.region).map(|s| s.into()),
             cluster_name: settings
-                .kubernetes
+                .kubernetes()
                 .as_ref()
                 .and_then(|k| k.cluster_name.clone())
                 .map(|s| s.into()),
-            cluster_dns_ip: settings.kubernetes.and_then(|k| k.cluster_dns_ip),
+            cluster_dns_ip: settings.kubernetes().and_then(|k| k.cluster_dns_ip),
         })
     }
 }

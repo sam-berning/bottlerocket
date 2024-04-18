@@ -5,6 +5,7 @@ use modeled_types::{SingleLineString, ValidBase64};
 use std::convert::Infallible;
 
 // Platform-specific settings
+#[derive(Clone)]
 #[model(impl_default = true)]
 pub struct AwsSettingsV1 {
     region: SingleLineString,

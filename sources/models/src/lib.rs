@@ -439,7 +439,79 @@ impl<'de> Deserialize<'de> for Settings {
     }
 }
 
+impl Settings {
+    pub fn aws(&self) -> Option<settings_extension_aws::AwsSettingsV1> {
+        match self {
+            Settings::AwsDev(settings) => settings.aws.clone(),
+            Settings::AwsEcs1(settings) => settings.aws.clone(),
+            Settings::AwsEcs1Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsEcs2(settings) => settings.aws.clone(),
+            Settings::AwsEcs2Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s123(settings) => settings.aws.clone(),
+            Settings::AwsK8s123Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s124(settings) => settings.aws.clone(),
+            Settings::AwsK8s124Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s125(settings) => settings.aws.clone(),
+            Settings::AwsK8s125Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s126(settings) => settings.aws.clone(),
+            Settings::AwsK8s126Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s127(settings) => settings.aws.clone(),
+            Settings::AwsK8s127Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s128(settings) => settings.aws.clone(),
+            Settings::AwsK8s128Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s129(settings) => settings.aws.clone(),
+            Settings::AwsK8s129Nvidia(settings) => settings.aws.clone(),
+            Settings::AwsK8s130(settings) => settings.aws.clone(),
+            Settings::AwsK8s130Nvidia(settings) => settings.aws.clone(),
+            Settings::MetalK8s125(settings) => settings.aws.clone(),
+            Settings::MetalK8s126(settings) => settings.aws.clone(),
+            Settings::MetalK8s127(settings) => settings.aws.clone(),
+            Settings::MetalK8s128(settings) => settings.aws.clone(),
+            Settings::MetalK8s129(settings) => settings.aws.clone(),
+            Settings::VmwareK8s125(settings) => settings.aws.clone(),
+            Settings::VmwareK8s126(settings) => settings.aws.clone(),
+            Settings::VmwareK8s127(settings) => settings.aws.clone(),
+            Settings::VmwareK8s128(settings) => settings.aws.clone(),
+            Settings::VmwareK8s129(settings) => settings.aws.clone(),
+            _ => None,
+        }
+    }
+    
+    pub fn kubernetes(&self) -> Option<KubernetesSettings> {
+        match self {
+            Settings::AwsK8s123(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s123Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s124(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s124Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s125(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s125Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s126(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s126Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s127(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s127Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s128(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s128Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s129(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s129Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s130(settings) => settings.kubernetes.clone(),
+            Settings::AwsK8s130Nvidia(settings) => settings.kubernetes.clone(),
+            Settings::MetalK8s125(settings) => settings.kubernetes.clone(),
+            Settings::MetalK8s126(settings) => settings.kubernetes.clone(),
+            Settings::MetalK8s127(settings) => settings.kubernetes.clone(),
+            Settings::MetalK8s128(settings) => settings.kubernetes.clone(),
+            Settings::MetalK8s129(settings) => settings.kubernetes.clone(),
+            Settings::VmwareK8s125(settings) => settings.kubernetes.clone(),
+            Settings::VmwareK8s126(settings) => settings.kubernetes.clone(),
+            Settings::VmwareK8s127(settings) => settings.kubernetes.clone(),
+            Settings::VmwareK8s128(settings) => settings.kubernetes.clone(),
+            Settings::VmwareK8s129(settings) => settings.kubernetes.clone(),
+            _ => None,
+        }
+    }
+}
+
 // Kubernetes static pod manifest settings
+#[derive(Clone)]
 #[model]
 struct StaticPod {
     enabled: bool,
@@ -448,6 +520,7 @@ struct StaticPod {
 
 // Kubernetes related settings. The dynamic settings are retrieved from
 // IMDS via Sundog's child "Pluto".
+#[derive(Clone)]
 #[model]
 struct KubernetesSettings {
     // Settings that must be specified via user data or through API requests.  Not all settings are
