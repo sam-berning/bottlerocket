@@ -11,14 +11,13 @@ exclude = ["README.md"]
 
 [dependencies]
 bottlerocket-release = { path = "../bottlerocket-release", version = "0.1" }
-elf = "0.7"
 libc = "0.2"
-memmap2 = "0.9"
 model-derive = { path = "model-derive", version = "0.1" }
 modeled-types = { path = "modeled-types", version = "0.1" }
 regex = "1.10"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
+variant-note = { path = "variant-note", version = "0.1" }
 
 # settings extensions
 settings-extension-aws = { path = "../settings-extensions/aws", version = "0.1" }

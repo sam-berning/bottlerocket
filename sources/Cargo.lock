@@ -2784,11 +2784,9 @@ version = "0.1.0"
 dependencies = [
  "bottlerocket-release",
  "bottlerocket-variant",
- "elf",
  "filetime",
  "generate-readme",
  "libc",
- "memmap2",
  "model-derive",
  "modeled-types",
  "rand",
@@ -2802,6 +2800,7 @@ dependencies = [
  "settings-extension-ntp",
  "settings-extension-updates",
  "toml",
+ "variant-note",
 ]
 
 [[package]]
@@ -4830,6 +4829,15 @@ name = "uuid"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f00cc9702ca12d3c81455259621e676d0f7251cec66a21e98fe2e9a37db93b2a"
+
+[[package]]
+name = "variant-note"
+version = "0.1.0"
+dependencies = [
+ "elf",
+ "memmap2",
+ "snafu 0.8.2",
+]
 
 [[package]]
 name = "version_check"

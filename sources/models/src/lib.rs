@@ -179,33 +179,11 @@ The `#[model]` attribute on Settings and its sub-structs reduces duplication and
 * [Model](src/metal-k8s-1.29/mod.rs)
 * [Default settings](src/metal-k8s-1.29/defaults.d/)
 
-# This directory
-
-We use `build.rs` to symlink the proper API model source code for Cargo to build.
-We determine the "proper" model by using the `VARIANT` environment variable.
-
-If a developer is doing a local `cargo build`, they need to set `VARIANT`.
-
-When building with the Bottlerocket build system, `VARIANT` is based on `BUILDSYS_VARIANT` from the top-level `Makefile.toml`, which can be overridden on the command line with `cargo make -e BUILDSYS_VARIANT=bla`.
-
-Note: when building with the build system, we can't create the symlink in the source directory during a build - the directories are owned by `root`, but we're `builder`.
-We can't use a read/write bind mount with current Docker syntax.
-To get around this, in the top-level `Dockerfile`, we mount a "cache" directory at `src/variant` that we can modify, and create a `current` symlink inside.
-The code in `src/lib.rs` then imports the requested model using `variant/current`.
-
-Note: for the same reason, we symlink `variant/mod.rs` to `variant_mod.rs`.
-Rust needs a `mod.rs` file to understand that a directory is part of the module structure, so we have to have `variant/mod.rs`.
-`variant/` is the cache mount that starts empty, so we have to store the file elsewhere and link it in.
-
-Note: all models share the same `Cargo.toml`.
 */
 
 // Clippy has a false positive in the presence of the Scalar macro.
 #![allow(clippy::derived_hash_with_manual_eq)]
 
-// The "variant" module is just a directory where we symlink in the user's requested build
-// variant; each variant defines a top-level Settings structure and we re-export the current one.
-mod variant;
 // The "de" module contains custom deserialization trait implementation for models.
 mod de;
 
@@ -215,7 +193,6 @@ use modeled_types::KubernetesEvictionKey;
 use modeled_types::KubernetesMemoryManagerPolicy;
 use modeled_types::KubernetesMemoryReservation;
 use modeled_types::NonNegativeInteger;
-pub use variant::Model;
 
 #[path="aws-dev/mod.rs"]
 mod aws_dev;
@@ -291,7 +268,7 @@ pub mod exec;
 
 // Below, we define common structures used in the API surface; specific variants build a Settings
 // structure based on these, and that's what gets exposed via the API.  (Specific variants' models
-// are in subdirectories and linked into place by build.rs at variant/current.)
+// are in submodules)
 
 use model_derive::model;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -310,6 +287,20 @@ use modeled_types::{
     OciDefaultsResourceLimitType, PemCertificateString, SingleLineString, SysctlKey,
     TopologyManagerPolicy, TopologyManagerScope, Url, ValidBase64, ValidLinuxHostname,
 };
+
+use bottlerocket_release::BottlerocketRelease;
+use variant_note::get_variant_from_elf_note;
+
+// This is the top-level model exposed by the API system. It contains the common sections for all
+// variants.  This allows a single API call to retrieve everything the API system knows, which is
+// useful as a check and also, for example, as a data source for templated configuration files.
+#[model]
+struct Model {
+    settings: Settings,
+    services: Services,
+    configuration_files: ConfigurationFiles,
+    os: BottlerocketRelease,
+}
 
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(untagged)]
@@ -353,7 +344,7 @@ pub enum Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        let variant = variant::get_variant_from_elf_note().unwrap();
+        let variant = get_variant_from_elf_note();
         match variant.as_str() {
             "aws-dev" => Settings::AwsDev(aws_dev::Settings::default()),
             "aws-ecs-1" => Settings::AwsEcs1(aws_ecs_1::Settings::default()),
@@ -398,7 +389,7 @@ impl<'de> Deserialize<'de> for Settings {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
          where D: Deserializer<'de>
     {
-        let variant = variant::get_variant_from_elf_note().unwrap();
+        let variant = get_variant_from_elf_note();
         match variant.as_str() {
             "aws-dev" => Ok(Settings::AwsDev(aws_dev::Settings::deserialize(deserializer)?)),
             "aws-ecs-1" => Ok(Settings::AwsEcs1(aws_ecs_1::Settings::deserialize(deserializer)?)),
