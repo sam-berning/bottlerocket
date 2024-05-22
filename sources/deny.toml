@@ -16,6 +16,7 @@ allow = [
     "OpenSSL",
     "Unlicense",
     "Zlib",
+    "MPL-2.0",
 ]
 
 exceptions = [
@@ -43,6 +44,10 @@ license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 name = "webpki"
 expression = "ISC"
 license-files = [{ path = "LICENSE", hash = 0x001c7e6c }]
+
+[licenses.private]
+ignore = true
+ignore-sources = ["https://github.com/sam-berning/bottlerocket-settings-sdk"]
 
 [bans]
 # Deny multiple versions or wildcard dependencies.
@@ -83,4 +88,5 @@ allow-git = [
     # We will allow it as an exception until the following is resolved:
     # https://github.com/bottlerocket-os/bottlerocket-settings-sdk/issues/18
     "https://github.com/bottlerocket-os/bottlerocket-settings-sdk",
+    "https://github.com/sam-berning/bottlerocket-settings-sdk",
 ]

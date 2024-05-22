@@ -129,6 +129,8 @@ members = [
     "settings-extensions/ntp",
     "settings-extensions/updates",
 
+    "settings-plugins/aws-dev",
+
     "static-pods",
 
     "parse-datetime",

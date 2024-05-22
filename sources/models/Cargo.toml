@@ -15,6 +15,7 @@ libc = "0.2"
 model-derive = { path = "model-derive", version = "0.1" }
 modeled-types = { path = "modeled-types", version = "0.1" }
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 toml = "0.8"
 
 # settings extensions
@@ -25,14 +26,17 @@ settings-extension-motd = { path = "../settings-extensions/motd", version = "0.1
 settings-extension-ntp = { path = "../settings-extensions/ntp", version = "0.1" }
 settings-extension-updates = { path = "../settings-extensions/updates", version = "0.1" }
 
+# settings plugins
+[dependencies.bottlerocket-settings-plugin]
+git = "https://github.com/sam-berning/bottlerocket-settings-sdk"
+branch = "settings-plugins"
+version = "0.1.0-alpha"
+
 [build-dependencies]
 bottlerocket-variant = { version = "0.1", path = "../bottlerocket-variant" }
 generate-readme = { version = "0.1", path = "../generate-readme" }
 filetime = "0.2"
 rand = "0.8"
-
-[dev-dependencies]
-serde_json = "1"
 
 [lib]
 # We're picking the current *model* with build.rs, so users shouldn't think

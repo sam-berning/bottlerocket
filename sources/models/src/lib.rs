@@ -215,7 +215,6 @@ use modeled_types::KubernetesEvictionKey;
 use modeled_types::KubernetesMemoryManagerPolicy;
 use modeled_types::KubernetesMemoryReservation;
 use modeled_types::NonNegativeInteger;
-pub use variant::*;
 
 // Types used to communicate between client and server for 'apiclient exec'.
 pub mod exec;
@@ -224,8 +223,10 @@ pub mod exec;
 // structure based on these, and that's what gets exposed via the API.  (Specific variants' models
 // are in subdirectories and linked into place by build.rs at variant/current.)
 
+use bottlerocket_release::BottlerocketRelease;
 use model_derive::model;
-use serde::{Deserialize, Serialize};
+use bottlerocket_settings_plugin::{BottlerocketSettings, BottlerocketDefaults, BottlerocketSettingsPluginLoader};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
 use std::net::IpAddr;
 
@@ -241,6 +242,53 @@ use modeled_types::{
     OciDefaultsResourceLimitType, PemCertificateString, SingleLineString, SysctlKey,
     TopologyManagerPolicy, TopologyManagerScope, Url, ValidBase64, ValidLinuxHostname,
 };
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Settings {
+    inner: BottlerocketSettings,
+}
+
+impl Serialize for Settings {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        let json_string = serde_json::to_string(&self.inner).unwrap();
+        let value: serde_json::Value = serde_json::from_str(&json_string).unwrap();
+        value.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Settings {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        BottlerocketSettingsPluginLoader::load();
+        let value = serde_json::Value::deserialize(deserializer)?;
+        let json_string = serde_json::to_string(&value).unwrap();
+        let inner: BottlerocketSettings = serde_json::from_str(&json_string).unwrap();
+        Ok(Self { inner })
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        BottlerocketSettingsPluginLoader::load();
+        let inner = BottlerocketSettings::defaults();
+        Self { inner }
+    }
+}
+
+// This is the top-level model exposed by the API system. It contains the common sections for all
+// variants.  This allows a single API call to retrieve everything the API system knows, which is
+// useful as a check and also, for example, as a data source for templated configuration files.
+#[model]
+pub struct Model {
+    settings: Settings,
+    services: Services,
+    configuration_files: ConfigurationFiles,
+    os: BottlerocketRelease,
+}
 
 // Kubernetes static pod manifest settings
 #[model]
@@ -393,7 +441,7 @@ struct HostContainer {
 }
 
 // Network settings. These settings will affect host service components' network behavior
-#[model]
+#[model(impl_default = true)]
 struct NetworkSettings {
     hostname: ValidLinuxHostname,
     hosts: EtcHostsEntries,
@@ -409,7 +457,7 @@ struct NtpSettings {
 }
 
 // DNS Settings
-#[model]
+#[model(impl_default = true)]
 struct DnsSettings {
     name_servers: Vec<IpAddr>,
     search_list: Vec<ValidLinuxHostname>,
@@ -432,7 +480,7 @@ struct KmodSetting {
 }
 
 // Kernel boot settings
-#[model]
+#[model(impl_default = true)]
 struct BootSettings {
     reboot_to_reconcile: bool,
     #[serde(
@@ -461,7 +509,7 @@ struct AwsSettings {
 }
 
 // Metrics settings
-#[model]
+#[model(impl_default = true)]
 struct MetricsSettings {
     metrics_url: Url,
     send_metrics: bool,
@@ -469,7 +517,7 @@ struct MetricsSettings {
 }
 
 // CloudFormation settings
-#[model]
+#[model(impl_default = true)]
 struct CloudFormationSettings {
     should_signal: bool,
     stack_name: SingleLineString,
@@ -545,7 +593,7 @@ struct PemCertificate {
 }
 
 ///// OCI hooks
-#[model]
+#[model(impl_default = true)]
 struct OciHooks {
     log4j_hotpatch_enabled: bool,
 }
