@@ -3,6 +3,7 @@ Description=Bottlerocket initial configuration complete
 AllowIsolate=yes
 After=basic.target
 Requires=basic.target
+Wants=console-getty.service
 
 [Install]
 RequiredBy=configured.target multi-user.target
