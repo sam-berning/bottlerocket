@@ -28,6 +28,7 @@ dependencies = [
  "kernel-6_1",
  "login",
  "release",
+ "settings-aws-dev",
  "strace",
 ]
 
@@ -1200,6 +1201,13 @@ dependencies = [
 [[package]]
 name = "selinux-policy"
 version = "0.1.0"
+
+[[package]]
+name = "settings-aws-dev"
+version = "0.1.0"
+dependencies = [
+ "glibc",
+]
 
 [[package]]
 name = "shim"

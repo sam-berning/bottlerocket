@@ -36,6 +36,8 @@ included-packages = [
     "iputils",
     "strace",
     "chrony-tools",
+# settings plugin
+    "settings-aws-dev",
 ]
 
 [lib]
@@ -54,3 +56,5 @@ login = { path = "../../packages/login" }
 iputils = { path = "../../packages/iputils" }
 strace = { path = "../../packages/strace" }
 chrony = { path = "../../packages/chrony" }
+# settings plugin
+settings-aws-dev = { path = "../../packages/settings-aws-dev" }
