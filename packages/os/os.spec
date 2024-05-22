@@ -312,7 +312,6 @@ static_output="$(mktemp)"
 exec 1>"${static_output}" 2>&1
 # Build static binaries in the background.
 %cargo_build_static --manifest-path %{_builddir}/sources/Cargo.toml \
-    -p apiclient \
     ${migrations[*]} \
     &
 # Save the PID so we can wait for it later.
@@ -344,6 +343,7 @@ exec 1>&3 2>&4
 # Run non-static builds in the foreground.
 echo "** Output from non-static builds:"
 %cargo_build --manifest-path %{_builddir}/sources/Cargo.toml \
+    -p apiclient \
     -p apiserver \
     -p sundog \
     -p schnauzer \
@@ -391,7 +391,7 @@ fi
 %install
 install -d %{buildroot}%{_cross_bindir}
 for p in \
-  apiserver \
+  apiclient apiserver \
   sundog schnauzer schnauzer-v2 bork \
   corndog thar-be-settings thar-be-updates host-containers \
   storewolf settings-committer \
@@ -462,10 +462,6 @@ for p in \
     %{buildroot}%{_cross_libexecdir}/cis-checks/kubernetes/${p}
 done
 install -m 0644 %{S:13} %{buildroot}%{_cross_libexecdir}/cis-checks/kubernetes/metadata.json
-
-for p in apiclient ; do
-  install -p -m 0755 ${HOME}/.cache/.static/%{__cargo_target_static}/release/${p} %{buildroot}%{_cross_bindir}
-done
 
 install -d %{buildroot}%{_cross_datadir}/migrations
 for version_path in %{_builddir}/sources/api/migration/migrations/v[0-9]*; do
